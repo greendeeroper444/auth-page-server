@@ -1,6 +1,6 @@
 const User = require('../models/user.model');
-const { verifyToken } = require('../helpers/authHelpers');
-const { hasPermission, hasRole, hasAnyRole } = require('../helpers/userHelpers');
+const { verifyToken } = require('../helpers/auth.helper');
+const { hasPermission, hasRole, hasAnyRole } = require('../helpers/user.helper');
 
 const authenticate = async (req, res, next) => {
     try {

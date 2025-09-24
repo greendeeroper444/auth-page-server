@@ -1,5 +1,5 @@
 const AuthService = require('../services/auth.service');
-const { getRefreshTokenConfig, getAccessTokenConfig, getCookieConfig } = require('../helpers/cookieHelpers');
+const { getRefreshTokenConfig, getAccessTokenConfig, getCookieConfig } = require('../helpers/cookie.helper');
 
 const authService = new AuthService();
 

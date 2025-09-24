@@ -1,9 +1,9 @@
 const BaseService = require('./base.service');
 const AuthRepository = require('../repositories/auth.repository');
-const { generateTokenPair, verifyToken, createPasswordResetToken, createEmailVerificationToken, hashToken } = require('../helpers/authHelpers');
+const { generateTokenPair, verifyToken, createPasswordResetToken, createEmailVerificationToken, hashToken } = require('../helpers/auth.helper');
 const { validateRegistrationData, validateLoginData, validatePassword } = require('../validators/user.validator');
-const { getClientInfo, sanitizeInput, isCommonPassword } = require('../helpers/securityHelpers');
-const { sendEmailVerification, sendPasswordReset, sendWelcomeEmail } = require('../helpers/emailHelpers');
+const { getClientInfo, sanitizeInput, isCommonPassword } = require('../helpers/security.helper');
+const { sendEmailVerification, sendPasswordReset, sendWelcomeEmail } = require('../helpers/email.helper');
 
 class AuthService extends BaseService {
     constructor() {

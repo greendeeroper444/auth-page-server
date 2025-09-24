@@ -19,7 +19,7 @@ const {
     emailVerificationRateLimit,
     speedLimiter,
     securityHeaders
-} = require('../helpers/securityHelpers');
+} = require('../helpers/security.helper');
 
 //apply security headers to all routes
 router.use(securityHeaders);

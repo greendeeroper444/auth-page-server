@@ -23,7 +23,7 @@ const {
     logUserActivity
 } = require('../middlewares/auth.middleware');
 
-const { securityHeaders } = require('../helpers/securityHelpers');
+const { securityHeaders } = require('../helpers/security.helper');
 
 //apply security headers and authentication to all routes
 router.use(securityHeaders);

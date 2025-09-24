@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 
-const { securityHeaders } = require('../helpers/securityHelpers');
+const { securityHeaders } = require('../helpers/security.helper');
 const { corsConfig } = require('../config/cors');
 const { helmetConfig } = require('../config/security');
 const { requestLogger } = require('./requestLogger.middleware');

@@ -2,11 +2,11 @@ const express = require('express');
 require('dotenv').config();
 
 const { connectDB } = require('./config/database');
-const { testEmailConfig } = require('./helpers/emailHelpers');
+const { testEmailConfig } = require('./helpers/email.helper');
 const { setupMiddleware } = require('./middlewares');
 const { setupRoutes } = require('./routes');
 const { setupErrorHandling } = require('./middlewares/errorHandlers.middleware');
-const { setupGracefulShutdown, setupProcessHandlers } = require('./utils/processHandlers');
+const { setupGracefulShutdown, setupProcessHandlers } = require('./utils/processHandlers.util');
 
 const app = express();
 

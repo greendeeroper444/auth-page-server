@@ -1,8 +1,8 @@
 const BaseService = require('./base.service');
 const UserRepository = require('../repositories/user.repository');
 const { validateProfileUpdateData, validatePassword } = require('../validators/user.validator');
-const { sanitizeInput, maskSensitiveData, isCommonPassword } = require('../helpers/securityHelpers');
-const { hasPermission, hasRole, getUserStats } = require('../helpers/userHelpers');
+const { sanitizeInput, maskSensitiveData, isCommonPassword } = require('../helpers/security.helper');
+const { hasPermission, hasRole, getUserStats } = require('../helpers/user.helper');
 
 class UserService extends BaseService {
     constructor() {
