@@ -1,10 +1,5 @@
 const User = require('../models/user.model');
 
-/**
- * find user by email or username
- * @param {String} identifier - email or username
- * @returns {Promise<Object|null>} user document or null
- */
 const findUserByEmailOrUsername = async (identifier) => {
     return await User.findOne({
         $or: [
@@ -14,11 +9,6 @@ const findUserByEmailOrUsername = async (identifier) => {
     });
 };
 
-/**
- * find user for login (includes password field)
- * @param {String} identifier - email or username
- * @returns {Promise<Object|null>} user document with password or null
- */
 const findUserForLogin = async (identifier) => {
     return await User.findOne({
         $or: [
@@ -28,11 +18,6 @@ const findUserForLogin = async (identifier) => {
     }).select('+password +loginAttempts +lockUntil');
 };
 
-/**
- * handle failed login attempts
- * @param {Object} user - user document
- * @returns {Promise<Object>} update result
- */
 const handleFailedLoginAttempt = async (user) => {
     //if previous lock expired, restart at 1
     if (user.lockUntil && user.lockUntil < Date.now()) {
@@ -57,11 +42,7 @@ const handleFailedLoginAttempt = async (user) => {
     return await User.updateOne({ _id: user._id }, updates);
 };
 
-/**
- * reset login attempts after successful login
- * @param {String} userId - user ID
- * @returns {Promise<Object>} update result
- */
+
 const resetLoginAttempts = async (userId) => {
     return await User.updateOne(
         { _id: userId },
@@ -74,14 +55,6 @@ const resetLoginAttempts = async (userId) => {
     );
 };
 
-/**
- * add login history entry
- * @param {String} userId - user ID
- * @param {String} ip - IP address
- * @param {String} userAgent - user agent string
- * @param {Boolean} success - login success status
- * @returns {Promise<Object>} update result
- */
 const addLoginHistory = async (userId, ip, userAgent, success = true) => {
     const loginEntry = {
         ip,
@@ -106,12 +79,7 @@ const addLoginHistory = async (userId, ip, userAgent, success = true) => {
     return await User.updateOne({ _id: userId }, updates);
 };
 
-/**
- * add refresh token to user
- * @param {String} userId - user ID
- * @param {String} token - refresh token
- * @returns {Promise<Object>} update result
- */
+
 const addRefreshToken = async (userId, token) => {
     return await User.updateOne(
         { _id: userId },
@@ -126,12 +94,7 @@ const addRefreshToken = async (userId, token) => {
     );
 };
 
-/**
- * remove refresh token from user
- * @param {String} userId - user ID
- * @param {String} token - refresh token to remove
- * @returns {Promise<Object>} update result
- */
+
 const removeRefreshToken = async (userId, token) => {
     return await User.updateOne(
         { _id: userId },
@@ -143,11 +106,6 @@ const removeRefreshToken = async (userId, token) => {
     );
 };
 
-/**
- * remove all refresh tokens from user (logout from all devices)
- * @param {String} userId - user ID
- * @returns {Promise<Object>} update result
- */
 const removeAllRefreshTokens = async (userId) => {
     return await User.updateOne(
         { _id: userId },
@@ -157,12 +115,6 @@ const removeAllRefreshTokens = async (userId) => {
     );
 };
 
-/**
- * check if user has specific permission
- * @param {Object} user - user document
- * @param {String} permission - permission to check
- * @returns {Boolean} has permission
- */
 const hasPermission = (user, permission) => {
     //super admin has all permissions
     if (user.role === 'superadmin') return true;
@@ -177,33 +129,14 @@ const hasPermission = (user, permission) => {
     return user.permissions && user.permissions.includes(permission);
 };
 
-/**
- * check if user has specific role
- * @param {Object} user - user document
- * @param {String} role - role to check
- * @returns {Boolean} has role
- */
 const hasRole = (user, role) => {
     return user.role === role;
 };
 
-/**
- * check if user has any of the specified roles
- * @param {Object} user - user document
- * @param {Array} roles - array of roles to check
- * @returns {Boolean} has any of the roles
- */
 const hasAnyRole = (user, roles) => {
     return roles.includes(user.role);
 };
 
-/**
- * update user password reset token
- * @param {String} userId - user ID
- * @param {String} hashedToken - hashed reset token
- * @param {Date} expires - expiration date
- * @returns {Promise<Object>} update result
- */
 const setPasswordResetToken = async (userId, hashedToken, expires) => {
     return await User.updateOne(
         { _id: userId },
@@ -214,13 +147,7 @@ const setPasswordResetToken = async (userId, hashedToken, expires) => {
     );
 };
 
-/**
- * update user email verification token
- * @param {String} userId - user ID
- * @param {String} hashedToken - hashed verification token
- * @param {Date} expires - expiration date
- * @returns {Promise<Object>} update result
- */
+
 const setEmailVerificationToken = async (userId, hashedToken, expires) => {
     return await User.updateOne(
         { _id: userId },
@@ -231,11 +158,6 @@ const setEmailVerificationToken = async (userId, hashedToken, expires) => {
     );
 };
 
-/**
- * verify email and update user status
- * @param {String} hashedToken - hashed verification token
- * @returns {Promise<Object|null>} user document or null
- */
 const verifyEmail = async (hashedToken) => {
     const user = await User.findOneAndUpdate(
         {
@@ -258,11 +180,6 @@ const verifyEmail = async (hashedToken) => {
     return user;
 };
 
-/**
- * get user statistics
- * @param {String} userId - user ID
- * @returns {Promise<Object>} user statistics
- */
 const getUserStats = async (userId) => {
     const user = await User.findById(userId);
     if (!user) return null;

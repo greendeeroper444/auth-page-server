@@ -1,9 +1,16 @@
-const express = require('express');
-const authRoutes = require('./auth.routes');
-const userRoutes = require('./user.routes');
-const router = express.Router();
+const main = require('./main');
+const { healthCheck } = require('./health');
+const { apiDocs } = require('./apiDocs');
 
-router.use('/auth', authRoutes);
-router.use('/users', userRoutes);
+const setupRoutes = (app) => {
+    //health check endpoint
+    app.get('/health', healthCheck);
 
-module.exports = router;
+    //api documentation route
+    app.get('/api-docs', apiDocs);
+
+    //main routes
+    app.use('/api', main);
+};
+
+module.exports = { setupRoutes };

@@ -1,14 +1,7 @@
-const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 const { verifyToken } = require('../helpers/authHelpers');
 const { hasPermission, hasRole, hasAnyRole } = require('../helpers/userHelpers');
 
-/**
- * authenticate JWT token from cookies
- * @param {Object} req - express request object
- * @param {Object} res - express response object
- * @param {Function} next - next middleware function
- */
 const authenticate = async (req, res, next) => {
     try {
         const accessToken = req.cookies.accessToken;
@@ -19,8 +12,7 @@ const authenticate = async (req, res, next) => {
                 message: 'Access token required'
             });
         }
-        
-        //verify token
+       
         const decoded = verifyToken(accessToken);
         if (!decoded) {
             return res.status(401).json({
@@ -29,7 +21,6 @@ const authenticate = async (req, res, next) => {
             });
         }
 
-        //find user
         const user = await User.findById(decoded.id);
         if (!user) {
             return res.status(401).json({
@@ -40,7 +31,6 @@ const authenticate = async (req, res, next) => {
 
         //check if user is active
         if (!user.isActive || user.accountStatus === 'suspended') {
-            //clear cookies for inactive users
             res.clearCookie('accessToken');
             res.clearCookie('refreshToken');
             return res.status(403).json({
@@ -52,7 +42,6 @@ const authenticate = async (req, res, next) => {
         //check if password was changed after token was issued
         const tokenIssuedAt = new Date(decoded.iat * 1000);
         if (user.passwordChangedAt && user.passwordChangedAt > tokenIssuedAt) {
-            //clear cookies when password is changed
             res.clearCookie('accessToken');
             res.clearCookie('refreshToken');
             return res.status(401).json({
@@ -81,15 +70,10 @@ const authenticate = async (req, res, next) => {
     }
 };
 
-/**
- * optional authentication - doesn't fail if no token, fallback to header if no cookie
- * @param {Object} req - express request object
- * @param {Object} res - express response object
- * @param {Function} next - next middleware function
- */
+
 const optionalAuthenticate = async (req, res, next) => {
     try {
-        //try cookies first, then fallback to Authorization header for API compatibility
+        //try cookies first, then fallback to authorization header for api compatibility
         let token = req.cookies.accessToken;
         
         if (!token) {
@@ -133,11 +117,6 @@ const optionalAuthenticate = async (req, res, next) => {
     }
 };
 
-/**
- * require specific role
- * @param {String} role - required role
- * @returns {Function} middleware function
- */
 const requireRole = (role) => {
     return (req, res, next) => {
         if (!req.user) {
@@ -158,11 +137,6 @@ const requireRole = (role) => {
     };
 };
 
-/**
- * require any of the specified roles
- * @param {Array} roles - array of acceptable roles
- * @returns {Function} middleware function
- */
 const requireAnyRole = (roles) => {
     return (req, res, next) => {
         if (!req.user) {
@@ -183,11 +157,6 @@ const requireAnyRole = (roles) => {
     };
 };
 
-/**
- * require specific permission
- * @param {String} permission - Required permission
- * @returns {Function} Middleware function
- */
 const requirePermission = (permission) => {
     return (req, res, next) => {
         if (!req.user) {
@@ -208,12 +177,6 @@ const requirePermission = (permission) => {
     };
 };
 
-/**
- * require email verification
- * @param {Object} req - express request object
- * @param {Object} res - express response object
- * @param {Function} next - next middleware function
- */
 const requireEmailVerification = (req, res, next) => {
     if (!req.user) {
         return res.status(401).json({
@@ -232,11 +195,6 @@ const requireEmailVerification = (req, res, next) => {
     next();
 };
 
-/**
- * check if user owns resource or has admin privileges
- * @param {String} resourceUserIdField - field name containing user ID in request params/body
- * @returns {Function} middleware function
- */
 const requireOwnershipOrAdmin = (resourceUserIdField = 'userId') => {
     return (req, res, next) => {
         if (!req.user) {
@@ -265,16 +223,11 @@ const requireOwnershipOrAdmin = (resourceUserIdField = 'userId') => {
     };
 };
 
-/**
- * rate limiting check for authenticated users
- * @param {Object} req - express request object
- * @param {Object} res - express response object
- * @param {Function} next - next middleware function
- */
+
 const checkUserRateLimit = (req, res, next) => {
     //enhanced rate limiting based on user role
     if (req.user) {
-        //VIP users (admin, superadmin) get higher limits
+        //vip users (admin, superadmin) get higher limits
         if (hasAnyRole(req.user, ['admin', 'superadmin'])) {
             req.rateLimit = {
                 limit: 1000, //higher limit for admins
@@ -290,12 +243,6 @@ const checkUserRateLimit = (req, res, next) => {
     next();
 };
 
-/**
- * log user activity
- * @param {Object} req - express request object
- * @param {Object} res - express response object
- * @param {Function} next - next middleware function
- */
 const logUserActivity = (req, res, next) => {
     if (req.user) {
         const activity = {
@@ -315,12 +262,6 @@ const logUserActivity = (req, res, next) => {
     next();
 };
 
-/**
- * API Key authentication for external services (fallback)
- * @param {Object} req - express request object
- * @param {Object} res - express response object
- * @param {Function} next - next middleware function
- */
 const authenticateApiKey = (req, res, next) => {
     const apiKey = req.headers['x-api-key'];
     
@@ -331,8 +272,8 @@ const authenticateApiKey = (req, res, next) => {
         });
     }
 
-    //verify API key (implement your API key validation logic)
-    //this is a placeholder - replace with actual API key validation
+    //verify apikey (implement api key validation logic)
+    //this is a placeholder - replace with actual api key validation
     if (apiKey !== process.env.API_KEY) {
         return res.status(401).json({
             success: false,
@@ -340,7 +281,7 @@ const authenticateApiKey = (req, res, next) => {
         });
     }
 
-    //set a system user for API requests
+    //set a system user for api requests
     req.user = {
         id: 'system',
         email: 'system@api',
@@ -353,19 +294,14 @@ const authenticateApiKey = (req, res, next) => {
     next();
 };
 
-/**
- * hybrid authentication - tries cookies first, then API key
- * @param {Object} req - express request object
- * @param {Object} res - express response object
- * @param {Function} next - next middleware function
- */
+
 const hybridAuthenticate = (req, res, next) => {
     //try cookie authentication first
     if (req.cookies.accessToken) {
         return authenticate(req, res, next);
     }
 
-    //fall back to API key authentication
+    //fall back to api key authentication
     if (req.headers['x-api-key']) {
         return authenticateApiKey(req, res, next);
     }

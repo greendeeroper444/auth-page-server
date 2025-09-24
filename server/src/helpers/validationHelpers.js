@@ -1,19 +1,9 @@
 const validator = require('validator');
 
-/**
- * validate email format
- * @param {String} email - email address
- * @returns {Boolean} is valid email
- */
 const isValidEmail = (email) => {
     return validator.isEmail(email);
 };
 
-/**
- * validate password strength
- * @param {String} password - password string
- * @returns {Object} validation result with errors
- */
 const validatePassword = (password) => {
     const errors = [];
     
@@ -47,11 +37,6 @@ const validatePassword = (password) => {
     };
 };
 
-/**
- * validate username format
- * @param {String} username - username string
- * @returns {Object} Validation result
- */
 const validateUsername = (username) => {
     const errors = [];
     
@@ -88,22 +73,11 @@ const validateUsername = (username) => {
     };
 };
 
-/**
- * validate phone number format
- * @param {String} phone - phone number
- * @returns {Boolean} is valid phone number
- */
 const isValidPhone = (phone) => {
     if (!phone) return true;
     return validator.isMobilePhone(phone, 'any');
 };
 
-/**
- * validate name (first name, last name)
- * @param {String} name - name string
- * @param {String} fieldName - field name for error messages
- * @returns {Object} validation result
- */
 const validateName = (name, fieldName = 'Name') => {
     const errors = [];
     
@@ -130,16 +104,11 @@ const validateName = (name, fieldName = 'Name') => {
     };
 };
 
-/**
- * validate date of birth
- * @param {Date|String} dateOfBirth - date of birth
- * @returns {Object} validation result
- */
 const validateDateOfBirth = (dateOfBirth) => {
     const errors = [];
     
     if (!dateOfBirth) {
-        return { isValid: true, errors }; //optional field
+        return { isValid: true, errors };
     }
     
     const date = new Date(dateOfBirth);
@@ -172,22 +141,12 @@ const validateDateOfBirth = (dateOfBirth) => {
     };
 };
 
-/**
- * sanitize string input
- * @param {String} str - input string
- * @returns {String} sanitized string
- */
 const sanitizeString = (str) => {
     if (typeof str !== 'string') return '';
     
     return validator.escape(str.trim());
 };
 
-/**
- * validate registration data
- * @param {Object} data - registration data
- * @returns {Object} validation result
- */
 const validateRegistrationData = (data) => {
     const errors = {};
     
@@ -233,11 +192,6 @@ const validateRegistrationData = (data) => {
     };
 };
 
-/**
- * validate login data
- * @param {Object} data - login data
- * @returns {Object} validation result
- */
 const validateLoginData = (data) => {
     const errors = {};
     
@@ -255,11 +209,7 @@ const validateLoginData = (data) => {
     };
 };
 
-/**
- * validate profile update data
- * @param {Object} data - profile data
- * @returns {Object} validation result
- */
+
 const validateProfileUpdateData = (data) => {
     const errors = {};
     

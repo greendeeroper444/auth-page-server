@@ -1,10 +1,6 @@
 const nodemailer = require('nodemailer');
 const config = require('../config/environment');
 
-/**
- * create email transporter
- * @returns {Object} nodemailer transporter
- */
 const createTransporter = () => {
     //configuration for different email providers
     const emailConfig = {
@@ -43,12 +39,7 @@ const createTransporter = () => {
     return nodemailer.createTransport(transportConfig);
 };
 
-/**
- * generate email verification template
- * @param {String} name - user's name
- * @param {String} verificationUrl - verification URL
- * @returns {Object} email template
- */
+
 const getEmailVerificationTemplate = (name, verificationUrl) => {
     const subject = 'Verify Your Email Address';
     
@@ -123,12 +114,6 @@ const getEmailVerificationTemplate = (name, verificationUrl) => {
     return { subject, html, text };
 };
 
-/**
- * generate password reset template
- * @param {String} name - user's name
- * @param {String} resetUrl - password reset URL
- * @returns {Object} email template
- */
 const getPasswordResetTemplate = (name, resetUrl) => {
     const subject = 'Password Reset Request';
     
@@ -206,11 +191,6 @@ const getPasswordResetTemplate = (name, resetUrl) => {
     return { subject, html, text };
 };
 
-/**
- * generate welcome email template
- * @param {String} name - user's name
- * @returns {Object} email template
- */
 const getWelcomeTemplate = (name) => {
     const subject = 'Welcome to Auth Secure!';
     
@@ -295,13 +275,7 @@ const getWelcomeTemplate = (name) => {
     return { subject, html, text };
 };
 
-/**
- * send email verification
- * @param {String} email - recipient email
- * @param {String} name - recipient name
- * @param {String} verificationToken - verification token
- * @returns {Promise<Boolean>} send success
- */
+
 const sendEmailVerification = async (email, name, verificationToken) => {
     try {
         const transporter = createTransporter();
@@ -324,13 +298,7 @@ const sendEmailVerification = async (email, name, verificationToken) => {
     }
 };
 
-/**
- * send password reset email
- * @param {String} email - recipient email
- * @param {String} name - recipient name
- * @param {String} resetToken - reset token
- * @returns {Promise<Boolean>} send success
- */
+
 const sendPasswordReset = async (email, name, resetToken) => {
     try {
         const transporter = createTransporter();
@@ -353,12 +321,7 @@ const sendPasswordReset = async (email, name, resetToken) => {
     }
 };
 
-/**
- * send welcome email
- * @param {String} email - recipient email
- * @param {String} name - recipient name
- * @returns {Promise<Boolean>} send success
- */
+
 const sendWelcomeEmail = async (email, name) => {
     try {
         const transporter = createTransporter();
@@ -380,10 +343,6 @@ const sendWelcomeEmail = async (email, name) => {
     }
 };
 
-/**
- * test email configuration
- * @returns {Promise<Boolean>} test success
- */
 const testEmailConfig = async () => {
     try {
         const transporter = createTransporter();

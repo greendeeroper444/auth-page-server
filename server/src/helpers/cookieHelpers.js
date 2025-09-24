@@ -1,8 +1,3 @@
-/**
- * get base cookie configuration
- * @param {Boolean} isProduction - whether running in production
- * @returns {Object} cookie configuration
- */
 const getCookieConfig = (isProduction = false) => ({
     httpOnly: true,
     secure: isProduction, //only secure in production (HTTPS)
@@ -11,22 +6,13 @@ const getCookieConfig = (isProduction = false) => ({
     domain: isProduction ? process.env.COOKIE_DOMAIN : undefined
 });
 
-/**
- * get access token cookie configuration
- * @param {Boolean} isProduction - whether running in production
- * @returns {Object} access token cookie configuration
- */
+
 const getAccessTokenConfig = (isProduction = false) => ({
     ...getCookieConfig(isProduction),
     maxAge: 15 * 60 * 1000 //15 minutes
 });
 
-/**
- * get refresh token cookie configuration
- * @param {Boolean} isProduction - whether running in production
- * @param {Boolean} rememberMe - whether user chose "remember me"
- * @returns {Object} refresh token cookie configuration
- */
+
 const getRefreshTokenConfig = (isProduction = false, rememberMe = false) => ({
     ...getCookieConfig(isProduction),
     maxAge: rememberMe ? 
@@ -34,14 +20,7 @@ const getRefreshTokenConfig = (isProduction = false, rememberMe = false) => ({
         24 * 60 * 60 * 1000      //24 hours if not
 });
 
-/**
- * set authentication cookies on response
- * @param {Object} res - express response object
- * @param {Object} tokens - object containing accessToken and refreshToken
- * @param {Object} options - options object
- * @param {Boolean} options.rememberMe - whether user chose remember me
- * @param {Boolean} options.isProduction - whether running in production
- */
+
 const setAuthCookies = (res, tokens, { rememberMe = false, isProduction = false } = {}) => {
     const accessTokenConfig = getAccessTokenConfig(isProduction);
     const refreshTokenConfig = getRefreshTokenConfig(isProduction, rememberMe);
@@ -59,11 +38,6 @@ const setAuthCookies = (res, tokens, { rememberMe = false, isProduction = false 
     }
 };
 
-/**
- * clear authentication cookies from response
- * @param {Object} res - express response object
- * @param {Boolean} isProduction - whether running in production
- */
 const clearAuthCookies = (res, isProduction = false) => {
     const cookieConfig = {
         ...getCookieConfig(isProduction),
@@ -79,16 +53,11 @@ const clearAuthCookies = (res, isProduction = false) => {
     }
 };
 
-/**
- * extract tokens from request (cookies first, then headers for fallback)
- * @param {Object} req - express request object
- * @returns {Object} object containing accessToken and refreshToken
- */
 const extractTokens = (req) => {
     let accessToken = req.cookies?.accessToken;
     let refreshToken = req.cookies?.refreshToken;
     
-    //fallback to Authorization header if no access token cookie
+    //fallback to authorization header if no access token cookie
     if (!accessToken) {
         const authHeader = req.headers.authorization;
         if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -111,21 +80,11 @@ const extractTokens = (req) => {
     };
 };
 
-/**
- * check if request has valid cookie format
- * @param {Object} req - wxpress request object
- * @returns {Boolean} whether request has proper cookie setup
- */
+
 const hasCookieSupport = (req) => {
     return req.cookies && typeof req.cookies === 'object';
 };
 
-/**
- * get cookie expiry time
- * @param {String} cookieType - 'access' or 'refresh'
- * @param {Boolean} rememberMe - whether remember me is enabled
- * @returns {Date} Expiry date
- */
 const getCookieExpiry = (cookieType, rememberMe = false) => {
     const now = Date.now();
     
