@@ -1,7 +1,7 @@
 const BaseService = require('./base.service');
 const AuthRepository = require('../repositories/auth.repository');
 const { generateTokenPair, verifyToken, createPasswordResetToken, createEmailVerificationToken, hashToken } = require('../helpers/authHelpers');
-const { validateRegistrationData, validateLoginData, validatePassword } = require('../helpers/validationHelpers');
+const { validateRegistrationData, validateLoginData, validatePassword } = require('../validators/user.validator');
 const { getClientInfo, sanitizeInput, isCommonPassword } = require('../helpers/securityHelpers');
 const { sendEmailVerification, sendPasswordReset, sendWelcomeEmail } = require('../helpers/emailHelpers');
 

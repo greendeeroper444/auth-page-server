@@ -1,6 +1,6 @@
 const BaseService = require('./base.service');
 const UserRepository = require('../repositories/user.repository');
-const { validateProfileUpdateData, validatePassword } = require('../helpers/validationHelpers');
+const { validateProfileUpdateData, validatePassword } = require('../validators/user.validator');
 const { sanitizeInput, maskSensitiveData, isCommonPassword } = require('../helpers/securityHelpers');
 const { hasPermission, hasRole, getUserStats } = require('../helpers/userHelpers');
 
