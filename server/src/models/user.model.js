@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-    // basic Information
+    // basic information
     firstName: {
         type: String,
         required: [true, 'First name is required'],
@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
         select: false
     },
     
-    //account Status
+    //account status
     isActive: {
         type: Boolean,
         default: true
@@ -62,7 +62,7 @@ const userSchema = new mongoose.Schema({
         default: 'pending'
     },
     
-    //profile Information
+    //profile information
     avatar: {
         type: String,
         default: null
@@ -92,7 +92,7 @@ const userSchema = new mongoose.Schema({
         zipCode: String
     },
     
-    //role and Permissions
+    //role and permissions
     role: {
         type: String,
         enum: ['user', 'admin', 'moderator', 'superadmin'],
@@ -103,7 +103,7 @@ const userSchema = new mongoose.Schema({
         enum: ['read', 'write', 'delete', 'manage_users', 'admin_panel']
     }],
     
-    //security Features
+    //security features
     twoFactorAuth: {
         isEnabled: {
             type: Boolean,
@@ -122,7 +122,7 @@ const userSchema = new mongoose.Schema({
         }]
     },
     
-    //password Reset
+    //password reset
     passwordResetToken: {
         type: String,
         select: false
@@ -136,7 +136,7 @@ const userSchema = new mongoose.Schema({
         default: Date.now
     },
     
-    //email Verification
+    //email verification
     emailVerificationToken: {
         type: String,
         select: false
@@ -146,7 +146,7 @@ const userSchema = new mongoose.Schema({
         select: false
     },
     
-    //login Security
+    //login security
     loginAttempts: {
         type: Number,
         default: 0
@@ -265,7 +265,7 @@ userSchema.pre('save', async function(next) {
     }
 });
 
-//basic password comparison method (keep this in model)
+//basic password comparison method
 userSchema.methods.comparePassword = async function(candidatePassword) {
     if (!this.password) return false;
     return await bcrypt.compare(candidatePassword, this.password);
