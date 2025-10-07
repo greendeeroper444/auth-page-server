@@ -130,6 +130,70 @@ class BaseService {
         return response;
     }
 
+    buildPaginationMetadata(page, limit, totalItems, additionalData = {}) {
+        const isUnlimited = !limit || limit === 'all' || limit === -1 || limit === '-1';
+        
+        if (isUnlimited) {
+            return {
+                currentPage: 1,
+                totalPages: 1,
+                totalItems,
+                itemsPerPage: totalItems,
+                hasNextPage: false,
+                hasPreviousPage: false,
+                startIndex: 1,
+                endIndex: totalItems,
+                isUnlimited: true,
+                ...additionalData
+            };
+        }
+
+        const safePage = Math.max(1, parseInt(page) || 1);
+        const safeLimit = Math.max(1, parseInt(limit));
+        const offset = (safePage - 1) * safeLimit;
+        const totalPages = Math.ceil(totalItems / safeLimit);
+        const hasNextPage = safePage < totalPages;
+        const hasPreviousPage = safePage > 1;
+
+        return {
+            currentPage: safePage,
+            totalPages,
+            totalItems,
+            itemsPerPage: safeLimit,
+            hasNextPage,
+            hasPreviousPage,
+            startIndex: offset + 1,
+            endIndex: Math.min(offset + safeLimit, totalItems),
+            isUnlimited: false,
+            ...additionalData
+        };
+    }
+
+    calculatePaginationParams(page, limit, maxLimit = Number.MAX_SAFE_INTEGER) {
+        const isUnlimited = !limit || limit === 'all' || limit === -1 || limit === '-1';
+        const safePage = Math.max(1, parseInt(page) || 1);
+        const safeLimit = isUnlimited ? maxLimit : Math.max(1, parseInt(limit));
+        const offset = (safePage - 1) * safeLimit;
+
+        return {
+            safePage,
+            safeLimit,
+            offset,
+            isUnlimited
+        };
+    }
+
+    paginateArray(data, page, limit) {
+        const { safePage, safeLimit, offset, isUnlimited } = this.calculatePaginationParams(page, limit, data.length);
+        
+        const paginatedData = isUnlimited ? data : data.slice(offset, offset + safeLimit);
+        const pagination = this.buildPaginationMetadata(page, limit, data.length);
+
+        return {
+            data: paginatedData,
+            pagination
+        };
+    }
 
     handleError(error, operation = 'operation') {
         console.error(`Service error during ${operation}:`, error);

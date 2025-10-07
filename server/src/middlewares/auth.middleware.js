@@ -73,7 +73,6 @@ const authenticate = async (req, res, next) => {
 
 const optionalAuthenticate = async (req, res, next) => {
     try {
-        //try cookies first, then fallback to authorization header for api compatibility
         let token = req.cookies.accessToken;
         
         if (!token) {
@@ -272,8 +271,6 @@ const authenticateApiKey = (req, res, next) => {
         });
     }
 
-    //verify apikey (implement api key validation logic)
-    //this is a placeholder - replace with actual api key validation
     if (apiKey !== process.env.API_KEY) {
         return res.status(401).json({
             success: false,
@@ -296,7 +293,7 @@ const authenticateApiKey = (req, res, next) => {
 
 
 const hybridAuthenticate = (req, res, next) => {
-    //try cookie authentication first
+    //cookie authentication first
     if (req.cookies.accessToken) {
         return authenticate(req, res, next);
     }

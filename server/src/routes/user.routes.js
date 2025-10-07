@@ -1,50 +1,31 @@
 const express = require('express');
 const router = express.Router();
 
-const {
-    getProfile,
-    updateProfile,
-    changePassword,
-    getStats,
-    getLoginHistory,
-    deleteAccount,
-    getAllUsers,
-    getUserById,
-    updateUserRole,
-    updateAccountStatus
-} = require('../controllers/user.controller');
-const {
-    authenticate,
-    requireRole,
-    requireAnyRole,
-    requirePermission,
-    requireEmailVerification,
-    requireOwnershipOrAdmin,
-    logUserActivity
-} = require('../middlewares/auth.middleware');
+const UserController = require('../controllers/user.controller');
+const { authenticate, requireRole, requireAnyRole, requirePermission, requireEmailVerification, requireOwnershipOrAdmin, logUserActivity } = require('../middlewares/auth.middleware');
 
 const { securityHeaders } = require('../helpers/security.helper');
 
-//apply security headers and authentication to all routes
+//security headers and authentication to all routes
 router.use(securityHeaders);
 router.use(authenticate);
 
 //user profile routes
-router.get('/profile', getProfile);
-router.put('/profile', updateProfile);
-router.get('/stats', getStats);
-router.get('/login-history', getLoginHistory);
+router.get('/profile', UserController.getProfile.bind(UserController));
+router.put('/profile', UserController.updateProfile.bind(UserController));
+router.get('/stats', UserController.getStats.bind(UserController));
+router.get('/login-history', UserController.getLoginHistory.bind(UserController));
 
 //password management
-router.put('/change-password', requireEmailVerification, changePassword);
+router.put('/change-password', requireEmailVerification, UserController.changePassword.bind(UserController));
 
 //account management
-router.delete('/account', requireEmailVerification, logUserActivity, deleteAccount);
+router.delete('/account', requireEmailVerification, logUserActivity, UserController.deleteAccount.bind(UserController));
 
 //admin routes - user management
-router.get('/', requireAnyRole(['admin', 'superadmin']), getAllUsers);
-router.get('/:userId', requirePermission('manage_users'), getUserById);
-router.put('/:userId/role', requireAnyRole(['admin', 'superadmin']), logUserActivity, updateUserRole);
-router.put('/:userId/status', requirePermission('manage_users'), logUserActivity, updateAccountStatus);
+router.get('/', requireAnyRole(['admin', 'superadmin']), UserController.getAllUsers.bind(UserController));
+router.get('/:userId', requirePermission('manage_users'), UserController.getUserById.bind(UserController));
+router.put('/:userId/role', requireAnyRole(['admin', 'superadmin']), logUserActivity, UserController.updateUserRole.bind(UserController));
+router.put('/:userId/status', requirePermission('manage_users'), logUserActivity, UserController.updateAccountStatus.bind(UserController));
 
 module.exports = router;

@@ -1,12 +1,10 @@
 const BaseService = require('./base.service');
-const UserRepository = require('../repositories/user.repository');
 const { validateProfileUpdateData, validatePassword } = require('../validators/user.validator');
 const { sanitizeInput, maskSensitiveData, isCommonPassword } = require('../helpers/security.helper');
 const { hasPermission, hasRole, getUserStats } = require('../helpers/user.helper');
 
 class UserService extends BaseService {
-    constructor() {
-        const userRepository = new UserRepository();
+    constructor(userRepository) {
         super(userRepository);
         this.userRepository = userRepository;
     }
@@ -151,34 +149,27 @@ class UserService extends BaseService {
         }
     }
 
-    async getLoginHistory(userId, page = 1, limit = 10) {
+    async getLoginHistory(userId, page, limit) {
         try {
             const user = await this.userRepository.getUserLoginHistory(userId);
             if (!user) {
                 throw new Error('User not found');
             }
 
-    
-            const startIndex = (page - 1) * limit;
-            const endIndex = startIndex + parseInt(limit);
-            const loginHistory = user.loginHistory
-                .sort((a, b) => b.timestamp - a.timestamp)
-                .slice(startIndex, endIndex);
+            const sortedHistory = user.loginHistory.sort((a, b) => b.timestamp - a.timestamp);
+
+            //paginate using base service method
+            const { data: paginatedHistory, pagination } = this.paginateArray(sortedHistory, page, limit);
 
             //mask ip addresses for security
-            const maskedHistory = loginHistory.map(entry => ({
+            const maskedHistory = paginatedHistory.map(entry => ({
                 ...entry.toObject(),
-                ip: maskSensitiveData(entry.ip, 7) //show first 7 characters of IP
+                ip: maskSensitiveData(entry.ip, 7)
             }));
 
             return {
                 loginHistory: maskedHistory,
-                pagination: {
-                    currentPage: parseInt(page),
-                    limit: parseInt(limit),
-                    total: user.loginHistory.length,
-                    totalPages: Math.ceil(user.loginHistory.length / limit)
-                }
+                pagination
             };
         } catch (error) {
             this.handleError(error, 'get login history');
@@ -209,16 +200,15 @@ class UserService extends BaseService {
         }
     }
 
-    async getAllUsers(user, filters) {
+   async getAllUsers(user, filters) {
         try {
-
             if (!hasRole(user, 'admin') && !hasRole(user, 'superadmin')) {
                 throw new Error('Access denied. Admin role required.');
             }
 
             const {
-                page = 1,
-                limit = 20,
+                page,
+                limit,
                 search = '',
                 role = '',
                 status = '',
@@ -226,24 +216,23 @@ class UserService extends BaseService {
                 sortOrder = 'desc'
             } = filters;
 
+            //calculate pagination parameters
+            const { safeLimit, offset } = this.calculatePaginationParams(page, limit);
+            
             const searchQuery = this.userRepository.buildSearchQuery(search, role, status);
             const sortObject = this.userRepository.buildSortObject(sortBy, sortOrder);
 
-            const skip = (parseInt(page) - 1) * parseInt(limit);
-
             const [users, totalUsers] = await Promise.all([
-                this.userRepository.getPaginatedUsers(searchQuery, sortObject, skip, parseInt(limit)),
+                this.userRepository.getPaginatedUsers(searchQuery, sortObject, offset, safeLimit),
                 this.userRepository.getUsersCount(searchQuery)
             ]);
 
+            //pagination metadata
+            const pagination = this.buildPaginationMetadata(page, limit, totalUsers);
+
             return {
                 users,
-                pagination: {
-                    currentPage: parseInt(page),
-                    limit: parseInt(limit),
-                    total: totalUsers,
-                    totalPages: Math.ceil(totalUsers / parseInt(limit))
-                }
+                pagination
             };
         } catch (error) {
             this.handleError(error, 'get all users');
