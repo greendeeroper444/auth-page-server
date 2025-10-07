@@ -4,6 +4,7 @@ class UserController {
     constructor() {
         this.userService = services.getUserService();
     }
+    
     async getProfile(req, res) {
         try {
             const userId = req.user.id;
